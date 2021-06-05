@@ -34,6 +34,10 @@ int main(int argc, char **argv)
 	socklen_t	adr_sz;
 	int	strlen, state;
 	char buf[BUF_SIZE];
+	
+	//numbers of connected clients, maxinum 30
+	int clientList[30] = { 0, };
+	int	client_cnt = 0;
 
 	if (argc != 2)
 	{
@@ -64,9 +68,13 @@ int main(int argc, char **argv)
 		if (clnt_sock == -1)
 			continue;
 		else
-			puts("new client connected");
+			printf("client connected num :");
 		
 		pid = fork();
+		
+		printf("%d, pid : %d\n", client_cnt, clientList[client_cnt]);
+		clientList[client_cnt] = pid;
+		client_cnt++;
 
 		if (pid == -1)
 		{
@@ -75,12 +83,12 @@ int main(int argc, char **argv)
 		}
 		else if (!pid)
 		{
-			printf("pid : %d , client connected\n", pid);
 			close(serv_sock);
 			while (strlen = read(clnt_sock, buf, BUF_SIZE))
 				write(clnt_sock, buf, strlen);
 
 			close(clnt_sock);
+			client_cnt--;
 			puts("client disconnected...");
 			return (0);
 		}

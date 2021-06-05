@@ -34,6 +34,7 @@ void write_routine(int sock, char *buf)
 		fgets(buf, BUF_SIZE, stdin);
 		if (!strcmp(buf,"q\n") || !strcmp(buf, "Q\n"))
 		{
+			//send buffer 차단
 			shutdown(sock, SHUT_WR);
 			return ;
 		}

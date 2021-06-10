@@ -30,9 +30,9 @@ if __name__ == "__main__":
     sock = socket(AF_INET, SOCK_STREAM)
     sock.connect(("localhost",2500))
 
-    cThread = threading.Thread(target=send,args=(sock,))
-    cThread.daemon = False
-    cThread.start()
+    rThread = threading.Thread(target=send,args=(sock,))
+    rThread.daemon = False
+    rThread.start()
     sThread = threading.Thread(target=receive,args=(sock,))
     sThread.daemon = False
     sThread.start()

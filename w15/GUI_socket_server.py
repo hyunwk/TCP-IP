@@ -22,6 +22,6 @@ while True:
         break
     data = float(data.decode())
     data = 9.0 / 5.0 * data + 32.0
-    data - '{:.1f}'.format(data)
+    data = '{:.1f}'.format(data)
     conn.send(data.encode())
 conn.close()

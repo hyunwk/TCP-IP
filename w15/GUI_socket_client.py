@@ -30,8 +30,8 @@ entry2 = Entry(width=5)
 
 calc_button = Button(text='전송',command=calculate)
 
-message_label.grid(row=0,column=0,sticky=w)
-recv_label.grid(row=1,column=0,sticky=w)
+message_label.grid(row=0,column=0,sticky=W)
+recv_label.grid(row=1,column=0,sticky=W)
 entry1.grid(row=0, column=1)
 entry2.grid(row=1, column=1)
 calc_button.grid(row=0,column=2,padx=10, pady=10)

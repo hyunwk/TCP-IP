@@ -43,6 +43,7 @@ class MultiChatServer:
                 continue
             else:
                 self.final_received_message = incoming_message.decode("utf-8")
+                print('received message',self.final_received_message)
                 # get member name
                 self.get_member(self.final_received_message)
                 # insert message to messages
@@ -53,23 +54,24 @@ class MultiChatServer:
                 # fix to send socket and data
                 self.send_all_clients(c_socket)
             # server quit 
-            if self.final_received_message == "/q":
+            if "/q" == self.final_received_message.rstrip()[self.final_received_message.find(":")+2:]:
                 c_socket.close()
 
     def send_all_clients(self, senders_socket):
         # add to constinusouly connect
-        if "/q" == self.final_received_message:
-            self.clients.remove(client)
-            print(ip,port,"연결이 종료되었습니다.")
-            return 
+        message = self.final_received_message
+        # /q is also make server quit
+#        if "/q" == message.rstrip()[message.find(":")+2:]:
+#            self.clients.remove(client)
+#            print(ip,port,"연결이 종료되었습니다.")
+#            return 
 
         for client in self.clients:
             socket, (ip,port) = client
             print('socket list :',socket)
             if socket is not senders_socket:
                 try:
-                    socket.sendall(self.final_received_message.encode('utf-8'))
-                    print(socket,'socket success: ',self.final_received_message)
+                    socket.sendall(message.encode('utf-8'))
                 except:
                     #self.clients.remove(client)
                     #print(ip,port,"연결이 종료되었습니다.")

@@ -1,13 +1,11 @@
 from socket import *
 from threading import *
 import time
+import jsonG
 class MultiChatServer:
     clients = []
     final_recived_message = ""
-    member_list = []
-    #chat lists
-    #messages = []
-
+    member_dict = {}
 
     def __init__(self):
         self.s_sock = socket(AF_INET, SOCK_STREAM)
@@ -27,13 +25,12 @@ class MultiChatServer:
                 self.clients.append(client)
             print(ip,':',str(port),'socket:',c_socket,' 연결되었습니다.')
             t = Thread(target=self.receive_messages, args=(c_socket,))
-            # add daemon
-            t.daemon = False
             t.start()
 
 
     def receive_messages(self, c_socket):
         while True:
+            #sleep to avoid overload
             time.sleep(0.1)
             try:
                 incoming_message = c_socket.recv(1024)
@@ -45,11 +42,7 @@ class MultiChatServer:
                 self.final_received_message = incoming_message.decode("utf-8")
                 print('received message',self.final_received_message)
                 # get member name
-                self.get_member(self.final_received_message)
-                # insert message to messages
-                #self.messages.insert(self.final_received_message)
-
-                print(self.final_received_message) 
+                self.get_member(c_socket, self.final_received_message)
                 #self.send_all_clients(c_socket)
                 # fix to send socket and data
                 self.send_all_clients(c_socket)
@@ -68,20 +61,26 @@ class MultiChatServer:
 
         for client in self.clients:
             socket, (ip,port) = client
-            print('socket list :',socket)
             if socket is not senders_socket:
                 try:
                     socket.sendall(message.encode('utf-8'))
                 except:
-                    #self.clients.remove(client)
-                    #print(ip,port,"연결이 종료되었습니다.")
+                    self.clients.remove(client)
+                    print(ip,port,"연결이 종료되었습니다.")
                     pass
     
-    def get_member(self,message):
+    def get_member(self,sock, message):
         member = message[:message.find(":")-1]
-        if member not in self.member_list:
-            self.member_list.append(member)
-            print("new member : ",member)
+
+        if sock in self.member_dict:
+            if self.member_dict[sock] is not member:
+                self.member_dict[sock] = member
+        else:
+            self.member_dict[sock] = member
+
+#    def send_member(self):
+#        data_string = json.dumps(self.member_dict).encode('utf-8')
+#        s.sendall(data_string)
 
 if __name__ == "__main__":
     MultiChatServer()

@@ -29,12 +29,8 @@ class ChatClient:
             
         self.name_label = Label(fr[0], text=' 사용자이름')
         self.recv_label = Label(fr[1], text=' 채팅창')
-        self.member_list_label= Label(fr[1], text='참여자                      ')
+        self.member_list_label= Label(fr[1], text='참여자' +' '*22)
         self.send_label = Label(fr[3], text=' 송신메세지')
-        # 채팅 멤버 라벨
-        #self.member_list_label = Label(fr[5], text='채팅멤버')
-        # 채팅 멤버 area
-        #self.member_list_area = ScrolledText(fr[6], height=20, width=20)
         
         self.send_btn = Button(fr[3], text='전송',command=self.send_chat)
         self.chat_transcript_area = ScrolledText(fr[2], height=20, width=60)
@@ -46,7 +42,6 @@ class ChatClient:
         self.name_widget.pack(side=LEFT)
         self.recv_label.pack(side=LEFT)
         self.member_list_label.pack(side=RIGHT)
-        #채팅 멤버 위치
         self.member_list_area.pack(side=RIGHT, padx=2, pady=2)
 
         self.send_btn.pack(side=RIGHT, padx=20)
@@ -56,7 +51,6 @@ class ChatClient:
 
     def send_chat(self):
         # message 전송하는 callback 함수#
-
         senders_name = self.name_widget.get().strip() + " : "
         data = self.enter_text_widget.get(1.0,'end').strip()
         message = (senders_name + data +'\n').encode('utf-8')

@@ -2,6 +2,7 @@ from socket import *
 from tkinter import *
 from tkinter.scrolledtext import ScrolledText
 from threading import *
+import time
 
 class ChatClient:
     client_socket = None
@@ -12,14 +13,14 @@ class ChatClient:
         self.listen_thread()
 
     def initialize_socket(self, ip, port):
-        ''' tcp socket 생성, server 연결'''
+        # tcp socket 생성, server 연결
         self.client_socket = socket(AF_INET, SOCK_STREAM)
         remote_ip = ip
         remote_port = port
         self.client_socket.connect((remote_ip, remote_port))
 
     def initialize_gui(self):
-        ''' message 전송하는 callback 함수'''
+        # message 전송하는 callback 함수
         self.root = Tk()
         fr=  []
         for i in range(7):
@@ -53,7 +54,7 @@ class ChatClient:
         self.enter_text_widget.pack(side=LEFT, padx=2, pady=2)
 
     def send_chat(self):
-        ''' message 전송하는 callback 함수'''
+        # message 전송하는 callback 함수#
 
         senders_name = self.name_widget.get().strip() + " : "
         data = self.enter_text_widget.get(1.0,'end').strip()
@@ -66,21 +67,25 @@ class ChatClient:
 
 
     def listen_thread(self):
-        '''thread 생성 및 시작'''
+        #thread 생성 및 시작#
         t = Thread(target=self.receive_message, args=(self.client_socket,))
         # add daemon
-        t.daemon = False
+        #t.daemon = False
         t.start()
 
     def receive_message(self, so):
-        '''server로부터 message 수신 및 문서창 표시'''
+        #server로부터 message 수신 및 문서창 표시#
         while True:
+            #buffering
+            time.sleep(0.1)
             buf = so.recv(256)
             if not buf:
                 break
-            self.chat_transcript_area.insert('end', buf.decode('utf-8') + '\n')
+            message = buf.decode('utf-8')
+            if message == "/q":
+                so.close()
+            self.chat_transcript_area.insert('end', message)
             self.chat_transcript_area.yview(END)
-        so.close()
 
 if __name__ == "__main__":
     ip = input("server IP addr:")

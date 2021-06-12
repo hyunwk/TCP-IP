@@ -1,6 +1,6 @@
 from socket import *
 from threading import *
-
+import time
 class MultiChatServer:
     clients = []
     final_recived_message = ""
@@ -34,6 +34,7 @@ class MultiChatServer:
 
     def receive_messages(self, c_socket):
         while True:
+            time.sleep(0.1)
             try:
                 incoming_message = c_socket.recv(1024)
                 if not incoming_message:
@@ -51,7 +52,9 @@ class MultiChatServer:
                 #self.send_all_clients(c_socket)
                 # fix to send socket and data
                 self.send_all_clients(c_socket)
-            c_socket.close()
+            # server quit 
+            if self.final_received_message == "/q":
+                c_socket.close()
 
     def send_all_clients(self, senders_socket):
         # add to constinusouly connect

@@ -81,8 +81,10 @@ class ChatClient:
             buf = so.recv(256)
             if not buf:
                 break
-            message = buf.decode('utf-8')
-            if message == "/q":
+            message = buf.decode('utf-8').strip()
+            print ('message',message.rstrip()[message.find(":")+2:])
+            if message.rstrip()[message.find(":")+2:] == "/q":
+                print("close sock")
                 so.close()
             self.chat_transcript_area.insert('end', message)
             self.chat_transcript_area.yview(END)

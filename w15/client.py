@@ -64,8 +64,6 @@ class ChatClient:
     def listen_thread(self):
         #thread 생성 및 시작#
         t = Thread(target=self.receive_message, args=(self.client_socket,))
-        # add daemon
-        #t.daemon = False
         t.start()
 
     def receive_message(self, so):

@@ -1,7 +1,7 @@
 from socket import *
 from threading import *
 import time
-import jsonG
+import json
 class MultiChatServer:
     clients = []
     final_recived_message = ""
@@ -40,24 +40,16 @@ class MultiChatServer:
                 continue
             else:
                 self.final_received_message = incoming_message.decode("utf-8")
-                print('received message',self.final_received_message)
-                # get member name
                 self.get_member(c_socket, self.final_received_message)
-                #self.send_all_clients(c_socket)
-                # fix to send socket and data
-                self.send_all_clients(c_socket)
+                self.send_message_clients(c_socket)
+                self.send_member_clients()
             # server quit 
             if "/q" == self.final_received_message.rstrip()[self.final_received_message.find(":")+2:]:
                 c_socket.close()
 
-    def send_all_clients(self, senders_socket):
+    def send_message_clients(self, senders_socket):
         # add to constinusouly connect
         message = self.final_received_message
-        # /q is also make server quit
-#        if "/q" == message.rstrip()[message.find(":")+2:]:
-#            self.clients.remove(client)
-#            print(ip,port,"연결이 종료되었습니다.")
-#            return 
 
         for client in self.clients:
             socket, (ip,port) = client
@@ -69,6 +61,22 @@ class MultiChatServer:
                     print(ip,port,"연결이 종료되었습니다.")
                     pass
     
+    def send_member_clients(self):
+        # add to constinusouly connect
+        #member = json.dumps(self.member_dict).encode('utf-8')
+        member = json.dumps(self.member_dict)
+        
+        for k, v in self.member_dict:
+            print(k,v)
+        for client in self.clients:
+            socket, (ip,port) = client
+            try:
+                socket.sendall(member)
+            except:
+                self.clients.remove(client)
+                pass
+    
+
     def get_member(self,sock, message):
         member = message[:message.find(":")-1]
 
@@ -77,10 +85,6 @@ class MultiChatServer:
                 self.member_dict[sock] = member
         else:
             self.member_dict[sock] = member
-
-#    def send_member(self):
-#        data_string = json.dumps(self.member_dict).encode('utf-8')
-#        s.sendall(data_string)
 
 if __name__ == "__main__":
     MultiChatServer()

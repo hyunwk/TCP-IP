@@ -78,7 +78,7 @@ class ChatClient:
         m = Thread(target=self.receive_member, args=(self.client_socket,))
         m.start()
 
-    def is_json(myjson):
+    def is_json(self,myjson):
         try:
             json_object = json.loads(myjson)
         except ValueError as e:
@@ -91,31 +91,28 @@ class ChatClient:
             data = so.recv(256)
             if not data:
                 break
-            message = data.decode('utf-8').strip()
-            print ('message',message.rstrip()[message.find(":")+2:])
-            if message.rstrip()[message.find(":")+2:] == "/q":
-                print("close sock")
-                so.close()
-            self.chat_transcript_area.insert('end', message)
-            self.chat_transcript_area.yview(END)
+            if not self.is_json(data):
+                message = data.decode('utf-8').strip()
+                if message.rstrip()[message.find(":")+2:] == "/q":
+                    print("close sock")
+                    so.close()
+                self.chat_transcript_area.insert('end', message)
+                self.chat_transcript_area.yview(END)
 
     def receive_member(self, so):
         #server로부터 message 수신 및 문서창 표시#
         while True:
             data = so.recv(256)
-            data_loaded = json.loads(data)
-            if not data_loaded:
-                break
-            for data in data_loaded:
-
-            message = data.decode('utf-8').strip()
-            print ('message',message.rstrip()[message.find(":")+2:])
-            if message.rstrip()[message.find(":")+2:] == "/q":
-                print("close sock")
-                so.close()
-            self.chat_transcript_area.insert('end', message)
-            self.chat_transcript_area.yview(END)
-
+            print("receive member:",data)
+            if self.is_json(data):
+                data_loaded = json.loads(data)
+                print("data loaded", data_loaded)
+                for data in data_loaded:
+                    #member = data.decode('utf-8')
+                    member = data
+                    self.member_list_area.insert('end', member)
+                    self.member_list_area.yview(END)
+    
 if __name__ == "__main__":
     ip = input("server IP addr:")
     if ip == '':

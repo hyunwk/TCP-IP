@@ -107,10 +107,8 @@ class ChatClient:
             if self.is_json(data):
                 data_loaded = json.loads(data)
                 print("data loaded", data_loaded)
-                for data in data_loaded:
-                    #member = data.decode('utf-8')
-                    member = data
-                    self.member_list_area.insert('end', member)
+                for k, v in data_loaded.items():
+                    self.member_list_area.insert('end', k + v)
                     self.member_list_area.yview(END)
     
 if __name__ == "__main__":

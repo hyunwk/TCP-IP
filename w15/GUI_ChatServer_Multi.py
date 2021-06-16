@@ -63,11 +63,9 @@ class MultiChatServer:
     
     def send_member_clients(self):
         # add to constinusouly connect
-        #member = json.dumps(self.member_dict).encode('utf-8')
-        member = json.dumps(self.member_dict)
+        member = json.dumps(self.member_dict).encode('utf-8')
+        #member = json.dumps(self.member_dict)
         
-        for k, v in self.member_dict:
-            print(k,v)
         for client in self.clients:
             socket, (ip,port) = client
             try:
@@ -79,12 +77,17 @@ class MultiChatServer:
 
     def get_member(self,sock, message):
         member = message[:message.find(":")-1]
-
+    
+#        if sock in self.member_dict:
+#            if self.member_dict[str(sock)] is not member:
+#                self.member_dict[str(sock)] = member
+#        else:
+#            self.member_dict[str(sock)] = member
         if sock in self.member_dict:
-            if self.member_dict[sock] is not member:
-                self.member_dict[sock] = member
+            if self.member_dict[sock.getpeername()[1]] is not member:
+                self.member_dict[sock.getpeername()[1]] = member
         else:
-            self.member_dict[sock] = member
+            self.member_dict[sock.getpeername()[1]] = member
 
 if __name__ == "__main__":
     MultiChatServer()

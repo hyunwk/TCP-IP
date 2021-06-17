@@ -130,9 +130,10 @@ class ChatClient:
                         self.member_list_area.yview(END)
 
 if __name__ == "__main__":
-    ip = input("server IP addr:")
-    if ip == '':
-        ip = '127.0.0.1'
+    #ip = input("server IP addr:")
+    ip = '54.180.148.4'
+#    if ip == '':
+#        ip = '127.0.0.1'
     port = 2500
     ChatClient(ip, port)
     mainloop()

@@ -3,9 +3,11 @@ from tkinter import *
 from tkinter.scrolledtext import ScrolledText
 from threading import *
 import time
+import json
 
 class ChatClient:
     client_socket = None
+    close_flag = False 
 
     def __init__(self, ip, port):
         self.initialize_socket(ip,port)
@@ -29,10 +31,11 @@ class ChatClient:
             
         self.name_label = Label(fr[0], text=' 사용자이름')
         self.recv_label = Label(fr[1], text=' 채팅창')
-        self.member_list_label= Label(fr[1], text='참여자' +' '*22)
+        self.quit_btn = Button(fr[1], text='종료',command=self.quit_client)
+        self.member_list_label= Label(fr[1], text='  port             name         ')
         self.send_label = Label(fr[3], text=' 송신메세지')
         
-        self.send_btn = Button(fr[3], text='전송',command=self.send_chat)
+        self.send_btn = Button(fr[3], text='전송',command=self.send_chat(self.close_flag))
         self.chat_transcript_area = ScrolledText(fr[2], height=20, width=60)
         self.member_list_area = ScrolledText(fr[2], height=20, width=15)
         self.enter_text_widget = ScrolledText(fr[4], height=5, width=80)
@@ -42,20 +45,30 @@ class ChatClient:
         self.name_widget.pack(side=LEFT)
         self.recv_label.pack(side=LEFT)
         self.member_list_label.pack(side=RIGHT)
+        #채팅 멤버 위치
         self.member_list_area.pack(side=RIGHT, padx=2, pady=2)
 
+        self.quit_btn.pack(side=RIGHT, padx=50)
         self.send_btn.pack(side=RIGHT, padx=20)
         self.chat_transcript_area.pack(side=LEFT, padx=2,pady=2)
         self.send_label.pack(side=LEFT)
         self.enter_text_widget.pack(side=LEFT, padx=2, pady=2)
 
-    def send_chat(self):
+    def quit_client(self):
+        self.send_chat(False)
+        close(self.client_socket)
+        
+
+    def send_chat(self, close_flag):
         # message 전송하는 callback 함수#
+        #if not close_flag:
         senders_name = self.name_widget.get().strip() + " : "
         data = self.enter_text_widget.get(1.0,'end').strip()
-        message = (senders_name + data +'\n').encode('utf-8')
-        self.chat_transcript_area.insert('end',message.decode("utf-8"))
-        self.chat_transcript_area.yview(END)
+        self.enter_text_widget.delete("1.0","end")
+        message = (senders_name + data).encode('utf-8')
+#        else:
+        message = ("close socket:"+self.client_socket.getpeername()[1]).encode('utf-8')
+        print("close socket:"+self.client_socket.getpeername()[1])
         self.client_socket.send(message)
         self.enter_text_widget.delete(1.0, 'end')
         return 'break'
@@ -66,26 +79,42 @@ class ChatClient:
         t = Thread(target=self.receive_message, args=(self.client_socket,))
         t.start()
 
+    def is_json(self,myjson):
+        try:
+            json_object = json.loads(myjson)
+        except ValueError as e:
+            return False
+        return True
+    
     def receive_message(self, so):
+        print("receive message func")
         #server로부터 message 수신 및 문서창 표시#
         while True:
-            #buffering
             time.sleep(0.1)
-            buf = so.recv(256)
-            if not buf:
+            data = so.recv(256)
+            if not data: 
                 break
-            message = buf.decode('utf-8').strip()
-            print ('message',message.rstrip()[message.find(":")+2:])
-            if message.rstrip()[message.find(":")+2:] == "/q":
-                print("close sock")
-                so.close()
-            self.chat_transcript_area.insert('end', message)
+            if not self.is_json(data):
+                print("not printed")
+                continue
+            self.member_list_area.yview(END)
+            message = json.loads(data)
+            self.chat_transcript_area.insert('end', message['message']+'\n')
             self.chat_transcript_area.yview(END)
 
+            self.member_list_area.delete("1.0","end")
+            print('message :', message)
+            for k, v in message.items():
+                print('k',k,'v',v)
+                if k =='message':
+                    continue
+                self.member_list_area.insert('end', k +'  ' + v+'\n')
+                self.member_list_area.yview(END)
+
 if __name__ == "__main__":
-    ip = input("server IP addr:")
-    if ip == '':
-        ip = '127.0.0.1'
-    port = 2500
-    ChatClient(ip, port)
-    mainloop()
+   ip = input("server IP addr:")
+   if ip == '':
+       ip = '127.0.0.1'
+   port = 2500
+   ChatClient(ip, port)
+   mainloop()

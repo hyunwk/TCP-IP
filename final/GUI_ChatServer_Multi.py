@@ -9,7 +9,7 @@ class MultiChatServer:
 
     def __init__(self):
         self.s_sock = socket(AF_INET, SOCK_STREAM)
-        self.ip ='ec2-54-180-148-4.ap-northeast-2.compute.amazonaws.com'
+        self.ip = gethostbyaddr('172.31.2.89')[0]
         self.port = 2500
         # so_reuseaddr = timewait 상태의 ip,port에  새로운 소켓 할당
         self.s_sock.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)

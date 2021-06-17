@@ -4,6 +4,7 @@ from tkinter.scrolledtext import ScrolledText
 from threading import *
 import time
 import json
+
 class ChatClient:
     client_socket = None
     close_flag = False
@@ -12,7 +13,6 @@ class ChatClient:
         self.initialize_socket(ip,port)
         self.initialize_gui()
         self.listen_thread()
-#        self.listen_member_thread()
 
     def initialize_socket(self, ip, port):
         # tcp socket 생성, server 연결
@@ -67,11 +67,12 @@ class ChatClient:
             data = self.enter_text_widget.get(1.0,'end').strip()
             self.enter_text_widget.delete("1.0","end")
             message = (senders_name + data).encode('utf-8')
+
         else:
-            #message = ("close socket:"+str(self.client_socket.getpeername()[1])).encode('utf-8')
             s = "close socket"
             message = s.encode('utf-8')
             print('quit message',message.decode("utf-8"))
+
         self.client_socket.send(message)
         self.enter_text_widget.delete(1.0, 'end')
         return 'break'
@@ -96,44 +97,28 @@ class ChatClient:
             data = so.recv(256)
             if not data: 
                 break
+
             if not self.is_json(data):
                 print("not printed")
                 continue
 
+            #message 
             message = json.loads(data)
             self.chat_transcript_area.insert('end', message['message']+'\n')
             self.chat_transcript_area.yview(END)
-
             self.member_list_area.delete("1.0","end")
-            print('message :', message)
+
+            #member
             for k, v in message.items():
-                print('k',k,'v',v)
                 if k =='message':
                     continue
                 self.member_list_area.insert('end', k +'  ' + v+'\n')
                 self.member_list_area.yview(END)
 
-    def receive_member(self, so):
-        #server로부터 message 수신 및 문서창 표시#
-        while True:
-            data = so.recv(256)
-            if not data and not self.is_json(data):
-                break
-            member = json.loads(data)
-            print('member', member)
-            if member['dictionary_info'] == 'member':
-                self.member_list_area.delete("1.0","end")
-                for k, v in member.items():
-                    print('k',k,'v',v)
-                    if k != 'message':
-                        self.member_list_area.insert('end', k +'  ' + v+'\n')
-                        self.member_list_area.yview(END)
-
 if __name__ == "__main__":
-    #ip = input("server IP addr:")
-    ip = '54.180.148.4'
-#    if ip == '':
-#        ip = '127.0.0.1'
+    ip = input("server IP addr:")
+    if ip == '':
+        ip = '127.0.0.1'
     port = 2500
     ChatClient(ip, port)
     mainloop()

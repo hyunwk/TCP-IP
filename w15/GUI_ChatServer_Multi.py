@@ -52,12 +52,11 @@ class MultiChatServer:
         # add to constinusouly connect
         for client in self.clients:
             socket, (ip,port) = client
-            if socket is not senders_socket:
-                try:
-                    socket.sendall(self.final_received_message.encode('utf-8'))
-                except:
-                    self.clients.remove(client)
-                    print(ip,port,"연결이 종료되었습니다.")
+            try:
+                socket.sendall(self.final_received_message.encode('utf-8'))
+            except:
+                self.clients.remove(client)
+                print(ip,port,"연결이 종료되었습니다.")
     
     def send_member_clients(self, senders_socket):
         # add to constinusouly connect
@@ -76,7 +75,6 @@ class MultiChatServer:
 
         if sock.getpeername()[1] in self.member_dict:
             if self.member_dict[sock.getpeername()[1]] is not member:
-                print('self.member_dict[sock.getpeername()[1]]', self.member_dict[sock.getpeername()[1]],']is not member')
                 self.member_dict[sock.getpeername()[1]] = member
         else:
             self.member_dict[sock.getpeername()[1]] = member

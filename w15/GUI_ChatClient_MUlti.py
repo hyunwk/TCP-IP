@@ -57,12 +57,13 @@ class ChatClient:
 
     def send_chat(self):
         # message 전송하는 callback 함수#
-
         senders_name = self.name_widget.get().strip() + " : "
         data = self.enter_text_widget.get(1.0,'end').strip()
+        self.enter_text_widget.delete("1.0","end")
         message = (senders_name + data +'\n').encode('utf-8')
-        self.chat_transcript_area.insert('end',message.decode("utf-8"))
-        self.chat_transcript_area.yview(END)
+
+#        self.chat_transcript_area.insert('end',message.decode("utf-8"))
+#        self.chat_transcript_area.yview(END)
         self.client_socket.send(message)
         self.enter_text_widget.delete(1.0, 'end')
         return 'break'
@@ -96,7 +97,7 @@ class ChatClient:
                 if message.rstrip()[message.find(":")+2:] == "/q":
                     print("close sock")
                     so.close()
-                self.chat_transcript_area.insert('end', message)
+                self.chat_transcript_area.insert('end', message+'\n')
                 self.chat_transcript_area.yview(END)
 
     def receive_member(self, so):
@@ -108,7 +109,7 @@ class ChatClient:
                 print("data loaded", data_loaded)
                 self.member_list_area.delete("1.0","end")
                 for k, v in data_loaded.items():
-                    self.member_list_area.insert('end', k +'  ' + v)
+                    self.member_list_area.insert('end', k +'  ' + v+'\n')
                     self.member_list_area.yview(END)
     
 if __name__ == "__main__":

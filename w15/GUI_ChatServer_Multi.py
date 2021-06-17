@@ -26,6 +26,7 @@ class MultiChatServer:
             print(ip,':',str(port),'socket:',c_socket,' 연결되었습니다.')
             t = Thread(target=self.receive_messages, args=(c_socket,))
             t.start()
+            
 
 
     def receive_messages(self, c_socket):
@@ -42,49 +43,40 @@ class MultiChatServer:
                 self.final_received_message = incoming_message.decode("utf-8")
                 self.get_member(c_socket, self.final_received_message)
                 self.send_message_clients(c_socket)
-                self.send_member_clients()
+                self.send_member_clients(c_socket)
             # server quit 
             if "/q" == self.final_received_message.rstrip()[self.final_received_message.find(":")+2:]:
                 c_socket.close()
 
     def send_message_clients(self, senders_socket):
         # add to constinusouly connect
-        message = self.final_received_message
-
         for client in self.clients:
             socket, (ip,port) = client
             if socket is not senders_socket:
                 try:
-                    socket.sendall(message.encode('utf-8'))
+                    socket.sendall(self.final_received_message.encode('utf-8'))
                 except:
                     self.clients.remove(client)
                     print(ip,port,"연결이 종료되었습니다.")
-                    pass
     
-    def send_member_clients(self):
+    def send_member_clients(self, senders_socket):
         # add to constinusouly connect
         member = json.dumps(self.member_dict).encode('utf-8')
-        #member = json.dumps(self.member_dict)
         
         for client in self.clients:
             socket, (ip,port) = client
-            try:
-                socket.sendall(member)
-            except:
-                self.clients.remove(client)
-                pass
-    
+            if socket is not senders_socket:
+                try:
+                    socket.sendall(member)
+                except:
+                    pass
 
-    def get_member(self,sock, message):
+    def get_member(self, sock, message):
         member = message[:message.find(":")-1]
-    
-#        if sock in self.member_dict:
-#            if self.member_dict[str(sock)] is not member:
-#                self.member_dict[str(sock)] = member
-#        else:
-#            self.member_dict[str(sock)] = member
-        if sock in self.member_dict:
+
+        if sock.getpeername()[1] in self.member_dict:
             if self.member_dict[sock.getpeername()[1]] is not member:
+                print('self.member_dict[sock.getpeername()[1]]', self.member_dict[sock.getpeername()[1]],']is not member')
                 self.member_dict[sock.getpeername()[1]] = member
         else:
             self.member_dict[sock.getpeername()[1]] = member

@@ -30,7 +30,7 @@ class ChatClient:
             
         self.name_label = Label(fr[0], text=' 사용자이름')
         self.recv_label = Label(fr[1], text=' 채팅창')
-        self.member_list_label= Label(fr[1], text='참여자                      ')
+        self.member_list_label= Label(fr[1], text='  port             name         ')
         self.send_label = Label(fr[3], text=' 송신메세지')
         # 채팅 멤버 라벨
         #self.member_list_label = Label(fr[5], text='채팅멤버')
@@ -103,12 +103,12 @@ class ChatClient:
         #server로부터 message 수신 및 문서창 표시#
         while True:
             data = so.recv(256)
-            print("receive member:",data)
             if self.is_json(data):
                 data_loaded = json.loads(data)
                 print("data loaded", data_loaded)
+                self.member_list_area.delete("1.0","end")
                 for k, v in data_loaded.items():
-                    self.member_list_area.insert('end', k + v)
+                    self.member_list_area.insert('end', k +'  ' + v)
                     self.member_list_area.yview(END)
     
 if __name__ == "__main__":
